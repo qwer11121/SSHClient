@@ -13,8 +13,10 @@ class SSHClient:
 
     ANSI_regex=r'(\x1b[^m]*(m|K)|\x0f)'
     Print = False
+    Timeout=5000
+    BufferSize=9999
     
-    def __init__(self, hostname, username, password, keyfile, keypass, Print=False):
+    def __init__(self, hostname, username, password=None, keyfile=None, keypass=None, Print=False):
         """
         Create a workspace for future commands
 
@@ -22,7 +24,7 @@ class SSHClient:
         :param username: user name
         :param password: password for user
         :param keyfile: if use key file for authentication, spacify key file location
-        :param keypass: password for decrypte keyfile
+        :param keypass: password of key file
         :param Print: True to print output in console
         :type hostname: string
         :type username: string
@@ -69,22 +71,18 @@ class SSHClient:
             print(prompt,end='')
         return command, output, prompt
 
-    def __Receive(self, timeout=5000):
+    def __Receive(self):
         timer=0
         while not self.channel.recv_ready():
             time.sleep(0.1)
             timer+=1
-            #print(timer)
-            if timer > timeout/100:
+            if timer > self.Timeout/100:
                 return "", "time out"
-        data = self.channel.recv(9999)
+        data = self.channel.recv(self.BufferSize)
         lines=data.split(b'\r\n')
         output=""
         for line in lines[1:-1]:
-            output=re.compile(self.ANSI_regex).sub('', line.decode("utf-8"))
-            #print(output)
+            output+=re.compile(self.ANSI_regex).sub('', line.decode("utf-8"))+'\r\n'
         prompt=re.compile(self.ANSI_regex).sub('', lines[-1].decode("utf-8"))
-        #print(prompt, end="")
         return output, prompt
 
-    
