@@ -1,10 +1,38 @@
 import paramiko, time, re, keyring
 
 class SSHClient:
+    """
+    This class create a workspace to remote host, allow user to run commands
+
+    ANSI data in output have been filted.
+
+    Sample:
+    client=SSHClient("HOSTNAME",username="USERNAME",password="PASSWORD")
+    output = client.SendCommand("COMMAND")[1]
+    """
+
     ANSI_regex=r'(\x1b[^m]*(m|K)|\x0f)'
     Print = False
     
     def __init__(self, hostname, username, password, keyfile, keypass, Print=False):
+        """
+        Create a workspace for future commands
+
+        :param hostname: the hostname or ip to be connected
+        :param username: user name
+        :param password: password for user
+        :param keyfile: if use key file for authentication, spacify key file location
+        :param keypass: password for decrypte keyfile
+        :param Print: True to print output in console
+        :type hostname: string
+        :type username: string
+        :type password: string
+        :type keyfile: string
+        :type keypass: string
+        :type Print: bool       
+
+        .. note:: to use key file authentication, password must be None
+        """
         self.Print=Print
         self.ssh=paramiko.SSHClient()
         self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy)
@@ -25,6 +53,13 @@ class SSHClient:
             print(prompt,end='')
 
     def SendCommand(self, command):
+        """
+        Execute a command and return result
+
+        :param command: command to be executed
+        :returns: command, output, new prompt
+        :rtype: string list
+        """
         self.channel.send(command+"\n")
         output, prompt = self.__Receive()
         if self.Print:
