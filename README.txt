@@ -3,4 +3,4 @@ Support password and key file authentication.
 
 Sample:
 client=SSHClient("HOSTNAME",username="USERNAME",password="PASSWORD")
-output = client.SendCommand("COMMAND")[1]
+output = client.Run("COMMAND")[1]

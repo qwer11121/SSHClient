@@ -58,6 +58,7 @@ class SSHClient:
             a list [command, output, new prompt]        
         """
         self.channel.send(command+"\n")
+        time.sleep(1)
         output, prompt = self.__Receive()
         if self.Print:
             print(command)
